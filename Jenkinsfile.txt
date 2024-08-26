@@ -2,48 +2,77 @@ pipeline {
     agent any
 
     environment {
-        DIRECTORY_PATH = 'C:\\Users\\Kris\\Documents\\Master of AI\\First Year Sem 2\\SIT753 - Professional Practice in IT\\Jenkins' 
+        DIRECTORY_PATH = 'C:\\Users\\Kris\\Documents\\Master of AI\\First Year Sem 2\\SIT753 - Professional Practice in IT\\Jenkins'
         TESTING_ENVIRONMENT = 'testing'
         PRODUCTION_ENVIRONMENT = 'KrisProduction'
+        RECIPIENT_EMAIL = 'your-email@example.com'  // Replace with the actual email address
     }
 
     stages {
         stage('Build') {
             steps {
-                echo "Fetch the source code from the directory path specified by the environment variable: ${env.DIRECTORY_PATH}"
-                echo "Compile the code and generate any necessary artifacts"
+                echo "Fetching the source code from: ${env.DIRECTORY_PATH}"
+                echo "Compiling the code and generating necessary artifacts using Maven"
+                // Example command: sh 'mvn clean package'
             }
         }
 
-        stage('Test') {
+        stage('Unit and Integration Tests') {
             steps {
-                echo "Running unit tests"
+                echo "Running unit tests with JUnit"
                 echo "Running integration tests"
+                // Example command: sh 'mvn test'
+            }
+            post {
+                always {
+                    mail to: "${env.RECIPIENT_EMAIL}",
+                         subject: "Jenkins Pipeline - Test Stage Status: ${currentBuild.currentResult}",
+                         body: "The Unit and Integration Tests stage has completed with status: ${currentBuild.currentResult}.",
+                         attachLog: true
+                }
             }
         }
 
-        stage('Code Quality Check') {
+        stage('Code Analysis') {
             steps {
-                echo "Checking the quality of the code"
+                echo "Performing code quality analysis using SonarQube"
+                // Example command: sh 'sonar-scanner'
             }
         }
 
-        stage('Deploy') {
+        stage('Security Scan') {
             steps {
-                echo "Deploy the application to the testing environment specified by the environment variable: ${env.TESTING_ENVIRONMENT}"
+                echo "Performing security scan using OWASP Dependency Check"
+                // Example command: sh 'dependency-check.sh --project test --scan /path/to/code'
+            }
+            post {
+                always {
+                    mail to: "${env.RECIPIENT_EMAIL}",
+                         subject: "Jenkins Pipeline - Security Scan Status: ${currentBuild.currentResult}",
+                         body: "The Security Scan stage has completed with status: ${currentBuild.currentResult}.",
+                         attachLog: true
+                }
             }
         }
 
-        stage('Approval') {
+        stage('Deploy to Staging') {
             steps {
-                echo "Waiting for manual approval"
-                sleep 10 // Pause for 10 seconds
+                echo "Deploying application to the staging environment: ${env.TESTING_ENVIRONMENT} (e.g., AWS EC2)"
+                // Example command: sh 'scp target/app.jar ec2-user@staging-server:/path/to/deploy'
+            }
+        }
+
+        stage('Integration Tests on Staging') {
+            steps {
+                echo "Running integration tests on the staging environment"
+                // Example command: sh 'mvn verify -Pstaging'
             }
         }
 
         stage('Deploy to Production') {
             steps {
-                echo "Deploy the code to the production environment: ${env.PRODUCTION_ENVIRONMENT}"
+                echo "Deploying application to the production environment: ${env.PRODUCTION_ENVIRONMENT} (e.g., AWS EC2)"
+                // Example command: sh 'scp target/app.jar ec2-user@production-server:/path/to/deploy'
             }
         }
     }
