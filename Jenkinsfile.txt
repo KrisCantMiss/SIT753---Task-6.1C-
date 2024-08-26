@@ -5,7 +5,7 @@ pipeline {
         DIRECTORY_PATH = 'C:\\Users\\Kris\\Documents\\Master of AI\\First Year Sem 2\\SIT753 - Professional Practice in IT\\Jenkins'
         TESTING_ENVIRONMENT = 'testing'
         PRODUCTION_ENVIRONMENT = 'KrisProduction'
-        RECIPIENT_EMAIL = 'your-email@example.com'  // Replace with the actual email address
+        RECIPIENT_EMAIL = 'krisnguyen307.vic@gmail.com'  // Replace with the actual email address
     }
 
     stages {
