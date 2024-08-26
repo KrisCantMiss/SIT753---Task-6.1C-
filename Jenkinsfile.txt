@@ -25,10 +25,12 @@ pipeline {
             }
             post {
                 always {
-                    mail to: "${env.RECIPIENT_EMAIL}",
-                         subject: "Jenkins Pipeline - Test Stage Status: ${currentBuild.currentResult}",
-                         body: "The Unit and Integration Tests stage has completed with status: ${currentBuild.currentResult}.",
-                         attachLog: true
+                    archiveArtifacts artifacts: 'path/to/test-results/*.log', allowEmptyArchive: true
+                    emailext attachLog: true,
+                             to: "${env.RECIPIENT_EMAIL}",
+                             subject: "Jenkins Pipeline - Test Stage Status: ${currentBuild.currentResult}",
+                             body: """The Unit and Integration Tests stage has completed with status: ${currentBuild.currentResult}.
+                                      Please see the attached logs for more details."""
                 }
             }
         }
