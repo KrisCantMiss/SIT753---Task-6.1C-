@@ -25,12 +25,14 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: '**/test-results/*.log', allowEmptyArchive: true
-                    emailext attachmentsPattern: '**/test-results/*.log',
-                             to: "${env.RECIPIENT_EMAIL}",
-                             subject: "Jenkins Pipeline - Test Stage Status: ${currentBuild.currentResult}",
-                             body: """The Unit and Integration Tests stage has completed with status: ${currentBuild.currentResult}.
-                                      Please see the attached logs for more details."""
+                   archiveArtifacts artifacts: '**/test-results/test.log', allowEmptyArchive: true
+                    emailext (
+                        subject: "Test Stage: ${currentBuild.currentResult}",
+                        body: "<p>The Unit and Integration Tests stage completed with status: ${currentBuild.currentResult}.</p>",
+                        mimeType: 'text/html',
+                        to: "${env.RECIPIENT_EMAIL}",
+                        attachmentsPattern: '**/test-results/test.log'
+                    )
                 }
             }
         }
@@ -49,12 +51,14 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: '**/security-scan-results/*.log', allowEmptyArchive: true
-                    emailext attachmentsPattern: '**/security-scan-results/*.log',
-                             to: "${env.RECIPIENT_EMAIL}",
-                             subject: "Jenkins Pipeline - Security Scan Stage Status: ${currentBuild.currentResult}",
-                             body: """The Security Scan stage has completed with status: ${currentBuild.currentResult}.
-                                      Please see the attached logs for more details."""
+                    archiveArtifacts artifacts: '**/security-scan-results/security-scan.log', allowEmptyArchive: true
+                    emailext (
+                        subject: "Security Scan Stage: ${currentBuild.currentResult}",
+                        body: "<p>The Security Scan stage completed with status: ${currentBuild.currentResult}.</p>",
+                        mimeType: 'text/html',
+                        to: "${env.RECIPIENT_EMAIL}",
+                        attachmentsPattern: '**/security-scan-results/security-scan.log'
+                    )
                 }
             }
         }
