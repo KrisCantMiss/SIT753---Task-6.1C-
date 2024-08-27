@@ -1,86 +1,81 @@
 pipeline {
     agent any
-
-    environment {
-        DIRECTORY_PATH = 'C:\\Users\\Kris\\Documents\\Master of AI\\First Year Sem 2\\SIT753 - Professional Practice in IT\\Jenkins'
-        TESTING_ENVIRONMENT = 'testing'
-        PRODUCTION_ENVIRONMENT = 'KrisProduction'
-        RECIPIENT_EMAIL = 'krisnguyen307.vic@gmail.com'  // Replace with the actual email address
-    }
-
     stages {
-        stage('Build') {
+        stage("Build") {
             steps {
-                echo "Fetching the source code from: ${env.DIRECTORY_PATH}"
-                echo "Compiling the code and generating necessary artifacts using Maven"
-                // Example command: sh 'mvn clean package'
+                echo "Building the code using Maven"
             }
         }
-
-        stage('Unit and Integration Tests') {
+        
+        stage("Unit and Integration Tests") {
             steps {
-                echo "Running unit tests with JUnit"
-                echo "Running integration tests"
-                // Example command: sh 'mvn test'
+                echo "Running unit tests with JUnit and integration tests with Selenium"
             }
             post {
-                always {
-                   archiveArtifacts artifacts: '**/test-results/test.log', allowEmptyArchive: true
+                success {
                     emailext (
-                        subject: "Test Stage: ${currentBuild.currentResult}",
-                        body: "<p>The Unit and Integration Tests stage completed with status: ${currentBuild.currentResult}.</p>",
-                        mimeType: 'text/html',
-                        to: "${env.RECIPIENT_EMAIL}",
-                        attachmentsPattern: '**/test-results/test.log'
+                        to: "krisnguyen307.vic@gmail.com",
+                        subject: "Unit and Integration Tests Stage Success",
+                        body: "The Unit and Integration Tests stage has completed successfully!",
+                        attachLog: true
+                    )
+                }
+                failure {
+                    emailext (
+                        to: "krisnguyen307.vic@gmail.com",
+                        subject: "Unit and Integration Tests Stage Failure",
+                        body: "The Unit and Integration Tests stage has failed!",
+                        attachLog: true
                     )
                 }
             }
         }
 
-        stage('Code Analysis') {
+        stage("Code Analysis") {
             steps {
-                echo "Performing code quality analysis using SonarQube"
-                // Example command: sh 'sonar-scanner'
+                echo "Analyzing code quality with SonarQube"
             }
         }
 
-        stage('Security Scan') {
+        stage("Security Scan") {
             steps {
-                echo "Performing security scan using OWASP Dependency Check"
-                // Example command: sh 'dependency-check.sh --project test --scan /path/to/code'
+                echo "Performing security scan using OWASP ZAP"
             }
             post {
-                always {
-                    archiveArtifacts artifacts: '**/security-scan-results/security-scan.log', allowEmptyArchive: true
+                success {
                     emailext (
-                        subject: "Security Scan Stage: ${currentBuild.currentResult}",
-                        body: "<p>The Security Scan stage completed with status: ${currentBuild.currentResult}.</p>",
-                        mimeType: 'text/html',
-                        to: "${env.RECIPIENT_EMAIL}",
-                        attachmentsPattern: '**/security-scan-results/security-scan.log'
+                        to: "hkrisnguyen307.vic@gmail.com",
+                        subject: "Security Scan Stage Success",
+                        body: "The Security Scan stage has completed successfully!",
+                        attachLog: true
+                    )
+                }
+                failure {
+                    emailext (
+                        to: "krisnguyen307.vic@gmail.com",
+                        subject: "Security Scan Stage Failure",
+                        body: "The Security Scan stage has failed!",
+                        attachLog: true
                     )
                 }
             }
         }
 
-        stage('Deploy to Staging') {
+        stage("Deploy to Staging") {
             steps {
-                echo "Deploying application to the staging environment: ${env.TESTING_ENVIRONMENT} (e.g., AWS EC2)"
-                // Example command: sh 'scp target/app.jar ec2-user@staging-server:/path/to/deploy'
+                echo "Deploying application to AWS EC2 staging server"
             }
         }
 
-        stage('Integration Tests on Staging') {
+        stage("Integration Tests on Staging") {
             steps {
-                echo "Running integration tests on the staging environment"
-                // Example command: sh 'mvn verify -Pstaging'
+                echo "Running integration tests on staging environment using Selenium"
             }
         }
 
-        stage('Deploy to Production') {
+        stage("Deploy to Production") {
             steps {
-                echo "Deploying application to the production environment: ${env.PRODUCTION_ENVIRONMENT} (e.g., AWS EC2)"
-                // Example command: sh 'scp target/app.jar ec2-user@production-server:/path/to/deploy'
+                echo "Deploying application to AWS EC2 production server"
             }
         }
     }
